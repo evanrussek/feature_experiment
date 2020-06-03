@@ -51,7 +51,7 @@ jsPsych.plugins["evan-feature33"] = (function() {
     // keys for left and right
     var choose_left_key = 'j';
     var choose_middle_key = 'k';
-    var choose_right_key = 'm';
+    var choose_right_key = 'l';
 
     // figure out the outcomes for each feature
     var c1_f_outcomes = [];
