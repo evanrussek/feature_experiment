@@ -312,6 +312,8 @@ jsPsych.plugins["evan-feature33"] = (function() {
 
       // should take in a position index?
       var display_chosen_state_features = function(){
+
+        // move chosen state up and take 500 ms to do this...
         d3.select(chosen_class).transition().attr('y',choice_y_stage2).duration(500)
 
         jsPsych.pluginAPI.setTimeout(function() {
@@ -348,25 +350,40 @@ jsPsych.plugins["evan-feature33"] = (function() {
                       }
                 }
 
-                var reward_received = c_rewards[position_to_choice_idx[response.chosen_pos]];
-                if (reward_received < 0){
-                  d3.select(".prompt").text("You lost ".concat(-1*reward_received, " points."))
-                }else{
-                  d3.select(".prompt").text("You received ".concat(reward_received, " points."))
-                }
+                reward_received = c_rewards[position_to_choice_idx[response.chosen_pos]];
 
-                // wait a second and then display unchosen state feature
                 jsPsych.pluginAPI.setTimeout(function() {
-                    display_unchosen_state_features();
-                  }, 1500)
+                  d3.select("svg").append("text")
+                              .attr("class", "reward")
+                              .attr("x", f_x)
+                              .attr("y", f_y_arr[2] + h/120 + 2.5*f_rad)
+                              .attr("font-family","Helvetica")
+                              .attr("font-weight","light")
+                              .attr("font-size",h/30)
+                              .attr("text-anchor","middle")
+                              .attr("fill", "white")
+                              .style("opacity",.75)
+                              .text(reward_received)
 
-              }, 1500)
+                  if (reward_received < 0){
+                    d3.select(".prompt").text("You lost ".concat(-1*reward_received, " points."))
+                  }else{
+                    d3.select(".prompt").text("You received ".concat(reward_received, " points."))
+                  }
+
+                  // wait a second and then display unchosen state feature
+                  jsPsych.pluginAPI.setTimeout(function() {
+                      display_unchosen_state_features();
+                    }, 1000) // how long to wait before moving on to unchosen features
+                }, 1500) // how long to wait to show summed reward
+
+              }, 1000) // how long to wait to show chosen features (after choices moves up mo)
       }
 
       // display unchosen state features
       var display_unchosen_state_features = function(){
+        //  500 msec time to move the two features..
         d3.selectAll(unchosen_classes).transition().attr('y',choice_y_stage2).duration(500)
-
         d3.select(".prompt").text("what you would have gotten from other choices")
 
         jsPsych.pluginAPI.setTimeout(function() {
@@ -405,15 +422,34 @@ jsPsych.plugins["evan-feature33"] = (function() {
                         }
                       }
               }
+
+            jsPsych.pluginAPI.setTimeout(function() {
+
+                for (u_idx = 0; u_idx < unchosen_pos.length; u_idx++){
+                  var pos_idx = unchosen_pos[u_idx]; // 0,1 or 2
+                  var this_total_reward = c_rewards[position_to_choice_idx[pos_idx]];
+                  f_x = choice_image_x_arr[pos_idx] + 2*f_rad;
+
+                  d3.select("svg").append("text")
+                              .attr("class", "reward")
+                              .attr("x", f_x)
+                              .attr("y", f_y_arr[2] + h/120 + 2.5*f_rad)
+                              .attr("font-family","Helvetica")
+                              .attr("font-weight","light")
+                              .attr("font-size",h/30)
+                              .attr("text-anchor","middle")
+                              .attr("fill", "white")
+                              .style("opacity",.2)
+                              .text(this_total_reward)
+                    }
+
               jsPsych.pluginAPI.setTimeout(function() {
                   // remove the choice class
                   end_trial();
-
-                }, 1500)
-
-            }, 1500)
-
-      }
+                }, 1500) // how long to wait with everything on screen before trial ends...
+            }, 1000) // how long to wait before showing reward
+      }, 1500) //
+    }// end function display unchosen features
 
 
 
@@ -472,13 +508,28 @@ jsPsych.plugins["evan-feature33"] = (function() {
 
       // data to record
       // feature probs, feature rewards, feature outcomes, chosen_pos, chosen_state, rt
-
-      var trial_data = {
-        "key_press_num": response.key,
-        "chosen_side": response.chosen_side,
-        "reward": reward,
-        "rt": response.rt,
-      };
+      // state_x_feature_x outcome...
+      // feature probabilities?
+      // feature rewards...
+      // total observed rewards...
+      var trial_data = {};
+      // record the feature rewards on offer...
+      for (f_idx = 0; f_idx < 3; f_idx++){
+        trial_data["f_".concat(f_idx+1,"_reward")] = trial.feature_rewards[f_idx];
+      }
+      // record the outcomes for each state..
+      for (s_idx = 0; s_idx < 3; s_idx++){
+        for (f_idx = 0; f_idx < 3; f_idx++){
+          trial_data["s_".concat(s_idx+1,"_f_", f_idx+1, "_outcome")] = 1*c_f_outcomes[s_idx][f_idx];
+        }
+      }
+      // record
+      trial_data["chosen_pos"] = response.chosen_pos + 1; // 1,2, or 3
+      trial_data["chosen_state"] = position_to_choice_idx[response.chosen_pos] + 1; // 1,2,3
+      trial_data["rt"] = response.rt;
+      trial_data["reward_received"] = reward_received; // reward we received...
+      console.log(trial_data)
+      // how much reward was received
 
       // record data, end trial
       jsPsych.finishTrial(trial_data);

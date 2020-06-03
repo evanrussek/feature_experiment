@@ -20,9 +20,9 @@ var instructions = {
   // there's multiple plugins for displaying instructions, for my task i use one where i show powerpoint slides
   //  it uses the jspsych instruction plugin
   type: "html-keyboard-response",
-  stimulus: "<p>In this experiment, you'll choose between which of two slot machines " +
-      "to play.</p><p> Both slot machines have some chance at providing a reward. " +
-      "<p>Try to learn which slot machine is the most rewarding so you can get as many rewards as you can. </p> " +
+  stimulus: "<p>In this experiment, you'll choose between three doors. " +
+      "</p><p> Each door has some chance of leading to one of three types of coins... " +
+      "<p>. </p> " +
       "<div style='width: 700px;'>"+
       "</div>"+
       "<p>Press any key to begin.</p>",
@@ -44,7 +44,7 @@ var choice_images = ["Stimuli/Evan_Stimuli/fractal_A.png",
 var choice_trial = { // this calls the plugin that i made in - jspsych-evan-explugin.js
   // it sets parameters for the plugin
   type: 'evan-feature33',
-  feature_rewards: [1, 2, 3],
+  feature_rewards: [-6, 0, 1],
   c1_image: choice_images[0],
   c2_image: choice_images[1],
   c3_image: choice_images[2],
