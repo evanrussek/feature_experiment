@@ -1,5 +1,6 @@
 
 jsPsych.plugins["evan-feature33"] = (function() {
+  // note that the name here
 
   var plugin = {};
 
@@ -37,6 +38,14 @@ jsPsych.plugins["evan-feature33"] = (function() {
       choice_prompt: { // show a prompt?
         type: jsPsych.plugins.parameterType.BOOL,
         default: true
+      },
+      single_choice_option:{ // just show a single choice option?
+        type: jsPsych.plugins.parameterType.BOOL,
+        default: true
+      },
+      update_prompt:{
+        type: jsPsych.plugins.parameterType.BOOL,
+        default: false
       }
     }
  }
@@ -45,8 +54,28 @@ jsPsych.plugins["evan-feature33"] = (function() {
 
     var choice_idxs = [0,1,2];
 
-    // this is the choice in each position
-    var position_to_choice_idx = jsPsych.randomization.repeat(choice_idxs, 1);
+    // don't randomize position for now...
+    var position_to_choice_idx = choice_idxs;//jsPsych.randomization.repeat(choice_idxs, 1);
+
+    var choice_time_limit = 4000; // 4 seconds
+    var unchosen_fadeout_time = 250;
+
+    // trial is 5.5 seconds after the choice
+
+    // chosen feature stuff
+    var trial_ITI_time = 750;
+
+    var pre_moveup_chosen_time = 250;
+    var chosen_circle_up_time = 250;
+    var post_circle_up_time = 250;
+    var pre_feature_points_time = 1000;
+    var pre_total_points_time = 0;
+    var post_total_points_time = 500;
+
+    // unchosen feature times...
+    var unchosen_circle_up_time = 250;
+    var post_unchosen_circle_up_time = 250;
+    var unchosen_feature_time = 1750;
 
     // keys for left and right
     var choose_left_key = 'j';
@@ -97,7 +126,7 @@ jsPsych.plugins["evan-feature33"] = (function() {
     var choice_images = [trial.c1_image, trial.c2_image, trial.c3_image];
     var feature_rewards = trial.feature_rewards;
 
-    var feature_colors = ["blue", "silver", "gold"];
+    var feature_colors = ["black", "silver", "gold"];
 
     // screen width and height
     var parentDiv = document.body;
@@ -153,45 +182,51 @@ jsPsych.plugins["evan-feature33"] = (function() {
     // function to place the choice stims and wait for a response (called at the bottom of plugin.trial)
 
     var display_choice_stim_wait_for_response = function(){
+      if (!trial.single_choice_option){
+        // place reward info
+        for (f_idx = 0; f_idx < 3; f_idx++){
+          d3.select("svg").append("text")
+                      .attr("class", "r_info")
+                      .attr("x", reward_info_x)
+                      .attr("y", reward_info_y_arr[f_idx])
+                      .attr("font-family","Helvetica")
+                      .attr("font-weight","light")
+                      .attr("font-size",h/30)
+                      .attr("text-anchor","middle")
+                      .attr("fill", feature_colors[f_idx])
+                      .style("opacity",1)
+                      .text(feature_rewards[f_idx])
+            //
+          }
+      }
 
-      // place reward info
-      for (f_idx = 0; f_idx < 3; f_idx++){
-        d3.select("svg").append("text")
-                    .attr("class", "r_info")
-                    .attr("x", reward_info_x)
-                    .attr("y", reward_info_y_arr[f_idx])
-                    .attr("font-family","Helvetica")
-                    .attr("font-weight","light")
-                    .attr("font-size",h/30)
-                    .attr("text-anchor","middle")
-                    .attr("fill", feature_colors[f_idx])
-                    .style("opacity",1)
-                    .text(feature_rewards[f_idx])
-          //
-        }
-
-        // place choice left image - note how we reference trial.c1_image - this was passed in
-        d3.select("svg").append("svg:image").attr("class", "choice cL").attr("x", choice_image_x_arr[0])
-            .attr("y", choice_image_y).attr("width",choice_img_width).attr("height",choice_img_height)
-            .attr("xlink:href", choice_images[position_to_choice_idx[0]]).style("opacity",1);
 
         // middle image
         d3.select("svg").append("svg:image").attr("class", "choice cM").attr("x", choice_image_x_arr[1])
             .attr("y", choice_image_y).attr("width",choice_img_width).attr("height",choice_img_height)
             .attr("xlink:href", choice_images[position_to_choice_idx[1]]).style("opacity",1);
 
-        // place choice right image - note how we reference trial.c1_image - this was passed in
-        d3.select("svg").append("svg:image").attr("class", "choice cR").attr("x", choice_image_x_arr[2])
-            .attr("y", choice_image_y).attr("width",choice_img_width).attr("height",choice_img_height)
-            .attr("xlink:href", choice_images[position_to_choice_idx[2]]).style("opacity",1);
+        if (!trial.single_choice_option){
+          // place choice left image - note how we reference trial.c1_image - this was passed in
+          d3.select("svg").append("svg:image").attr("class", "choice cL").attr("x", choice_image_x_arr[0])
+              .attr("y", choice_image_y).attr("width",choice_img_width).attr("height",choice_img_height)
+              .attr("xlink:href", choice_images[position_to_choice_idx[0]]).style("opacity",1);
 
 
-        var choice_stage_text = choose_left_key.concat(": left, ", choose_middle_key, ": middle, ", choose_right_key, ": right");
+          // place choice right image - note how we reference trial.c1_image - this was passed in
+          d3.select("svg").append("svg:image").attr("class", "choice cR").attr("x", choice_image_x_arr[2])
+              .attr("y", choice_image_y).attr("width",choice_img_width).attr("height",choice_img_height)
+              .attr("xlink:href", choice_images[position_to_choice_idx[2]]).style("opacity",1);
+        }
+        if (trial.single_choice_option){
+          var choice_stage_text = "Press ".concat(choose_middle_key, " to activate the door.")
+        }else{
+          var choice_stage_text = choose_left_key.concat(": left, ", choose_middle_key, ": middle, ", choose_right_key, ": right");
+        }
 
         if (trial.choice_prompt){
           d3.select(".prompt").text(choice_stage_text)
         }
-
 
         // define response handler function // function is automatically called
         // at response and info has response information
@@ -246,19 +281,15 @@ jsPsych.plugins["evan-feature33"] = (function() {
 
           // select multiple classes and phase them out
           // transition the opacty of what they didn't chcoose to 0 (over 350 milliseconds)
-          d3.selectAll(unchosen_classes).transition().style('opacity',.25).duration(500)
-          d3.selectAll('.r_info').transition().style('opacity',0).duration(500)
+          d3.selectAll(unchosen_classes).transition().style('opacity',.25).duration(unchosen_fadeout_time)
+          d3.selectAll('.r_info').transition().style('opacity',0).duration(unchosen_fadeout_time)
 
           // now move the chosen one up...
-
-
 
           // wait for some amount of time and then call display outcome
           jsPsych.pluginAPI.setTimeout(function() {
               display_chosen_state_features();
-
-            }, 800); // this runs 800 ms after choice is made
-
+            }, unchosen_fadeout_time + pre_moveup_chosen_time); // this runs 800 ms after choice is made
         } // end handle response function
 
         // define function to handle responses that are too slow
@@ -290,7 +321,11 @@ jsPsych.plugins["evan-feature33"] = (function() {
 
 
         // define valid responses - these keys were defined above
-        var valid_responses = [choose_left_key, choose_middle_key, choose_right_key];
+        if (trial.single_choice_option){
+          var valid_responses = [choose_middle_key];
+        }else{
+          var valid_responses = [choose_left_key, choose_middle_key, choose_right_key];
+        }
 
         // jspsych function to listen for responses
         var keyboardListener = jsPsych.pluginAPI.getKeyboardResponse({
@@ -302,7 +337,7 @@ jsPsych.plugins["evan-feature33"] = (function() {
           });
 
         // define max response tiem - set timer to wait for that time (this will be turned off when they make a response)
-        var max_response_time = 30000000000000000;
+        var max_response_time = choice_time_limit; // limit choice time to 4 seconds
         // wait some time and then end trial
         jsPsych.pluginAPI.setTimeout(function() {
             handle_slow_response();
@@ -313,10 +348,9 @@ jsPsych.plugins["evan-feature33"] = (function() {
       // should take in a position index?
       var display_chosen_state_features = function(){
 
-        // move chosen state up and take 500 ms to do this...
-        d3.select(chosen_class).transition().attr('y',choice_y_stage2).duration(500)
+        d3.select(chosen_class).transition().attr('y',choice_y_stage2).duration(chosen_circle_up_time) // transition circle up immediately
 
-        jsPsych.pluginAPI.setTimeout(function() {
+        jsPsych.pluginAPI.setTimeout(function() { // wait for time after
           // wait for x time and then show the features...
           var pos_idx = response.chosen_pos; // 0,1 or 2
           var f_rad = choice_img_width/4;
@@ -334,57 +368,77 @@ jsPsych.plugins["evan-feature33"] = (function() {
                     .attr("cy", f_y_arr[f_idx])
                     .attr("r", f_rad)
                     .attr("fill", feature_colors[f_idx])
-                    .style("opacity",1)
+                    .style("opacity",1) // how long to wait to show reward of each option...
+              }
+            }
 
-              d3.select("svg").append("text")
-                          .attr("class", "reward")
-                          .attr("x", f_x)
-                          .attr("y", f_y_arr[f_idx] + h/120)
-                          .attr("font-family","Helvetica")
-                          .attr("font-weight","light")
-                          .attr("font-size",h/30)
-                          .attr("text-anchor","middle")
-                          .attr("fill", "white")
-                          .style("opacity",1)
-                          .text(feature_rewards[f_idx])
-                      }
-                }
+            if (!trial.single_choice_option){
+              jsPsych.pluginAPI.setTimeout(function() {
+                for (f_idx = 0; f_idx < 3; f_idx++){
+                  if (chosen_state_features[f_idx]){
+                    d3.select("svg").append("text")
+                                .attr("class", "reward")
+                                .attr("x", f_x + 1.25*f_rad)
+                                .attr("y", f_y_arr[f_idx] + h/120 + 1.25*f_rad)
+                                .attr("font-family","Helvetica")
+                                .attr("font-weight","light")
+                                .attr("font-size",h/30)
+                                .attr("text-anchor","middle")
+                                .attr("fill", "white")
+                                .style("opacity",1)
+                                .text(feature_rewards[f_idx])
+                              }
+                          }
+                        }, pre_feature_points_time) // how long to wait to show points
+                    }
 
                 reward_received = c_rewards[position_to_choice_idx[response.chosen_pos]];
 
                 jsPsych.pluginAPI.setTimeout(function() {
-                  d3.select("svg").append("text")
-                              .attr("class", "reward")
-                              .attr("x", f_x)
-                              .attr("y", f_y_arr[2] + h/120 + 2.5*f_rad)
-                              .attr("font-family","Helvetica")
-                              .attr("font-weight","light")
-                              .attr("font-size",h/30)
-                              .attr("text-anchor","middle")
-                              .attr("fill", "white")
-                              .style("opacity",.75)
-                              .text(reward_received)
+                    if (!trial.single_choice_option){
+                      d3.select("svg").append("text")
+                                  .attr("class", "reward")
+                                  .attr("x", f_x)
+                                  .attr("y", f_y_arr[2] + h/120 + 3.5*f_rad)
+                                  .attr("font-family","Helvetica")
+                                  .attr("font-weight","light")
+                                  .attr("font-size",h/30)
+                                  .attr("text-anchor","middle")
+                                  .attr("fill", "white")
+                                  .style("opacity",.75)
+                                  .text("Total: ".concat(reward_received))
 
-                  if (reward_received < 0){
-                    d3.select(".prompt").text("You lost ".concat(-1*reward_received, " points."))
-                  }else{
-                    d3.select(".prompt").text("You received ".concat(reward_received, " points."))
+                  if (trial.update_prompt){
+                    if (reward_received < 0){
+                      d3.select(".prompt").text("You lost ".concat(-1*reward_received, " points."))
+                    }else{
+                      d3.select(".prompt").text("You received ".concat(reward_received, " points."))
+                    }
                   }
+                }
 
                   // wait a second and then display unchosen state feature
                   jsPsych.pluginAPI.setTimeout(function() {
+                    if (trial.single_choice_option){
+                      end_trial();
+                    }else{
                       display_unchosen_state_features();
-                    }, 1000) // how long to wait before moving on to unchosen features
-                }, 1500) // how long to wait to show summed reward
+                    }
+                  }, post_total_points_time) // how long to wait before moving on to unchosen features
+                }, pre_total_points_time + pre_feature_points_time) // how long to wait to show summed reward
 
-              }, 1000) // how long to wait to show chosen features (after choices moves up mo)
+              }, post_circle_up_time + chosen_circle_up_time) // how long to wait after circle moves up?
       }
 
       // display unchosen state features
       var display_unchosen_state_features = function(){
         //  500 msec time to move the two features..
-        d3.selectAll(unchosen_classes).transition().attr('y',choice_y_stage2).duration(500)
-        d3.select(".prompt").text("what you would have gotten from other choices")
+
+
+        d3.selectAll(unchosen_classes).transition().attr('y',choice_y_stage2).duration(unchosen_circle_up_time)
+        if (trial.update_prompt){
+          d3.select(".prompt").text("what you would have gotten from other choices")
+        }
 
         jsPsych.pluginAPI.setTimeout(function() {
           // wait for x time and then show the features...
@@ -407,89 +461,15 @@ jsPsych.plugins["evan-feature33"] = (function() {
                           .attr("r", f_rad)
                           .attr("fill", feature_colors[f_idx])
                           .style("opacity",.1)
-
-                    d3.select("svg").append("text")
-                                .attr("class", "reward")
-                                .attr("x", f_x)
-                                .attr("y", f_y_arr[f_idx] + h/120)
-                                .attr("font-family","Helvetica")
-                                .attr("font-weight","light")
-                                .attr("font-size",h/30)
-                                .attr("text-anchor","middle")
-                                .attr("fill", "white")
-                                .style("opacity",.1)
-                                .text(feature_rewards[f_idx])
                         }
                       }
               }
-
-            jsPsych.pluginAPI.setTimeout(function() {
-
-                for (u_idx = 0; u_idx < unchosen_pos.length; u_idx++){
-                  var pos_idx = unchosen_pos[u_idx]; // 0,1 or 2
-                  var this_total_reward = c_rewards[position_to_choice_idx[pos_idx]];
-                  f_x = choice_image_x_arr[pos_idx] + 2*f_rad;
-
-                  d3.select("svg").append("text")
-                              .attr("class", "reward")
-                              .attr("x", f_x)
-                              .attr("y", f_y_arr[2] + h/120 + 2.5*f_rad)
-                              .attr("font-family","Helvetica")
-                              .attr("font-weight","light")
-                              .attr("font-size",h/30)
-                              .attr("text-anchor","middle")
-                              .attr("fill", "white")
-                              .style("opacity",.2)
-                              .text(this_total_reward)
-                    }
-
               jsPsych.pluginAPI.setTimeout(function() {
                   // remove the choice class
                   end_trial();
-                }, 1500) // how long to wait with everything on screen before trial ends...
-            }, 1000) // how long to wait before showing reward
-      }, 1500) //
+                }, unchosen_feature_time)
+      }, unchosen_circle_up_time + post_unchosen_circle_up_time) //
     }// end function display unchosen features
-
-
-
-      // function to display choice outcome.
-      var display_outcome = function(){
-
-        var reward_probs = [trial.c1_reward_prob, trial.c2_reward_prob];
-        // draw random sample to see whether rewarded
-        if (reward_probs[response.chosen_side - 1] < Math.random()){
-          var reward_val = 1;
-        }else{
-          var reward_val = 0;
-        }
-        reward = reward_val;
-
-        // wait for some amount of time and display reward
-        jsPsych.pluginAPI.setTimeout(function() {
-          // display reward val
-          d3.select("svg").append("text")
-                    .attr("class", "outcome")
-                    .attr("x", w/2)
-                    .attr("y", h/2 + w/12)
-                    .attr("font-family","monospace")
-                    .attr("font-weight","bold")
-                    .attr("font-size",w/6)
-                    .attr("text-anchor","middle")
-                    .attr("fill", "yellow")
-                    .style("opacity",.25)
-                    .text(reward_val)
-
-          }, 500); // this runs wait 500 then show reward
-
-
-        // wait some time and then end trial
-        jsPsych.pluginAPI.setTimeout(function() {
-            // remove the choice class
-            end_trial();
-
-          }, 1500); // 1500 msec after display_outcome is called
-      } // end display outcome
 
 
     /// functon to end trial, save data,
@@ -507,11 +487,6 @@ jsPsych.plugins["evan-feature33"] = (function() {
       //console.log('correct: ' + correct_response)
 
       // data to record
-      // feature probs, feature rewards, feature outcomes, chosen_pos, chosen_state, rt
-      // state_x_feature_x outcome...
-      // feature probabilities?
-      // feature rewards...
-      // total observed rewards...
       var trial_data = {};
       // record the feature rewards on offer...
       for (f_idx = 0; f_idx < 3; f_idx++){
@@ -543,13 +518,14 @@ jsPsych.plugins["evan-feature33"] = (function() {
         chosen_side: null,
       };
       // needs to be predefined in case trial doesn't get response
-      var reward = null;
+      // var reward = null;
+      var reward_received = null;
 
     // wait pretrial time sec (this is the ITI), call first part of trial (this is the first thing called after initial display)
     jsPsych.pluginAPI.setTimeout(function() {
       display_choice_stim_wait_for_response();
 
-    }, 1000); // this is where the ITI goes
+    }, trial_ITI_time); // this is where the ITI goes
 
   };
 
