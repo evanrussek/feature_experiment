@@ -14,7 +14,6 @@ firebase.auth().signInAnonymously();
 
 var uid;
 
-
 // Consent form
 var check_consent = function (elem) {
   if ($('#consent_checkbox1').is(':checked') && $('#consent_checkbox2').is(':checked') &&
@@ -52,6 +51,7 @@ function getQueryVariable(variable)
 
 function task(uid){
 
+
     if (window.location.search.indexOf('PROLIFIC_PID') > -1) {
         var subjectID = getQueryVariable('PROLIFIC_PID');
     }
@@ -60,7 +60,16 @@ function task(uid){
     }
 
     var db = firebase.firestore();
-    var run_name = 'run2a';
+    var run_name = 'run2a';  // great
+
+    // function to save the task data... call this every x trials
+    var saveTaskData = function(){
+      var task_data = jsPsych.data.get().json();
+      // just save all the data every x trials...
+      db.collection('featuretask').doc(run_name).collection('subjects').doc(uid).collection('taskdata').doc('data').set({
+        data:  task_data
+      })
+    }
 
     // record new date and start time
     db.collection('featuretask').doc(run_name).collection('subjects').doc(uid).set({
@@ -78,7 +87,6 @@ function task(uid){
 
 
     // this script constructs a 'timeline' - an array of dictionaries (the things in brackets, {})...
-    timeline = [];
 
     // this is a jspsych defined plug-in which
     var full_screen = { // this plugin will prompt the full screen
@@ -86,7 +94,6 @@ function task(uid){
         fullscreen_mode: true
     };
 
-    // place choie stim, wait for response
     n_choice_trials = Object.keys(rewards).length; // define
 
     var first_third_break = {
@@ -106,19 +113,31 @@ function task(uid){
     }
 
     timeline = [full_screen];
+
+    // pre questionairre screen
+    var pre_Q_screen = {
+        type: 'html-button-response',
+        timing_post_trial: 0,
+        choices: ['Begin Questionnaires'],
+        is_html: true,
+        stimulus: 'Welcome to the task. Before starting the main task, we would like you to answer a few questionnaires. \ Please try to answer as accurately as you can.'
+    }
+
+    timeline.push(pre_Q_screen);
+
     var scale_1 = [
-      "Not at all", 
-      "", 
-      "", 
-      "", 
+      "Not at all",
+      "",
+      "",
+      "",
       "Extremely"
     ];
 
     var scale_2 = [
-      "Not at all typical of me", 
-      "", 
-      "", 
-      "", 
+      "Not at all typical of me",
+      "",
+      "",
+      "",
       "Very typical of me"
     ];
 
@@ -137,12 +156,15 @@ function task(uid){
         {prompt: "Was trembling or shaking", name: 'aa9', labels: scale_1,required: true},
         {prompt: "Had a very dry mouth", name: 'aa10', labels: scale_1,required: true}
       ],
-      randomize_question_order: false
+      randomize_question_order: false,
+      data:{trial_num: 'Q', Q_name: 'anx_aro_q'},
+      on_finish: function(){saveTaskData()}
     };
+
     timeline.push(anx_aro_q);
     var worry_q = {
       type: 'survey-likert',
-      preamble:'Rate each of the following statements on a scale of 1 (“not at all typical of me”) to 5 (“very typical of me”). Please do not leave any items blank.',
+      preamble:'Rate each of the following statements on a scale of 1 (not at all typical of me) to 5 (very typical of me). Please do not leave any items blank.',
       questions: [
         {prompt: "If I do not have enough time to do everything, I do not worry about it", name: 'worry1', labels: scale_1,required: true},
         {prompt: "My worries overwhelm me", name: 'worry2', labels: scale_1,required: true},
@@ -161,10 +183,13 @@ function task(uid){
         {prompt: "I worry all the time", name: 'worry15', labels: scale_1,required: true},
         {prompt: "I worry about projects until they are all done", name: 'worry16', labels: scale_1,required: true}
       ],
-      randomize_question_order: false
+      randomize_question_order: false,
+      data:{trial_num: 'Q', Q_name: 'worry'},
+      on_finish: function(){saveTaskData()}
     };
 
     timeline.push(worry_q);
+
     timeline = timeline.concat(intro_w_trials);
 
     for (var i = 0; i < n_choice_trials; i++){
@@ -174,13 +199,19 @@ function task(uid){
           feature_rewards: rewards[i],
           c1_image: choice_images[0],
           c2_image: choice_images[1],
-   
+
           c1_feature_probs: feature_probs[i]["s_0"],
           c2_feature_probs: feature_probs[i]["s_1"],
 
           choice_prompt: true,
           single_choice_option: false
         }
+
+        // check that this works...
+        if (i%10 == 0){
+          choice_trial.on_finish = function(){saveTaskData()};
+        }
+
         timeline.push(choice_trial)
 
         if (i == Math.round(n_choice_trials/3)){
@@ -190,7 +221,6 @@ function task(uid){
             timeline.push(second_third_break);
         }
     }
-
 
     // notice anything
     var notice_question = {

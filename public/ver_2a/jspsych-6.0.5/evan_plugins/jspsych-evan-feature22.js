@@ -54,20 +54,20 @@ jsPsych.plugins["evan-feature22"] = (function() {
 
     // trial is 5.5 seconds after the choice
 
-    // chosen feature stuff
-    var trial_ITI_time = 750;
+    // 1 second between trials
+    var trial_ITI_time = 1000;
 
-    var pre_moveup_chosen_time = 250;
-    var chosen_circle_up_time = 250;
-    var post_circle_up_time = 250;
-    var pre_feature_points_time = 1000;
+    var pre_moveup_chosen_time = 500;
+    var chosen_circle_up_time = 500;
+    var post_circle_up_time = 1000;
+    var pre_feature_points_time = 2000;
     var pre_total_points_time = 0;
-    var post_total_points_time = 500;
+    var post_total_points_time = 1000;
 
     // unchosen feature times...
-    var unchosen_circle_up_time = 250;
-    var post_unchosen_circle_up_time = 250;
-    var unchosen_feature_time = 1750;
+    var unchosen_circle_up_time = 500;
+    var post_unchosen_circle_up_time = 1000;
+    var unchosen_feature_time = 2000;
 
     // keys for left and right
     var choose_left_key = 'g';
@@ -98,7 +98,6 @@ jsPsych.plugins["evan-feature22"] = (function() {
         c2_f_outcomes.push(0)
       }
 
-      
     }
 
     // combine these in a matrix...
@@ -121,7 +120,7 @@ jsPsych.plugins["evan-feature22"] = (function() {
     var choice_img_width = w/10;
     var choice_img_height = w/10;
 
-    var reward_info_y_arr = [h/4 - choice_img_height/3, h/4 + choice_img_height/3];
+    var reward_info_y_arr = [h/4 - choice_img_height/3, h/4]; //h/4 + choice_img_height/3];
     var reward_info_x = w/2;
 
     // where on the screen to center these?
@@ -129,7 +128,13 @@ jsPsych.plugins["evan-feature22"] = (function() {
     var choice_image_x_arr = [w/2.5 - choice_img_width/2,
                               w/5+w/2.5 - choice_img_width/2];
 
+    // goes to h/5
     var choice_y_stage2 = h/5 - choice_img_height/2;
+
+    // y position of features
+    var f_rad = choice_img_width/4;
+    var f_y_arr = [2*h/5, 3*h/5];
+
 
     // place things that are constant throughout the trial
 
@@ -151,7 +156,7 @@ jsPsych.plugins["evan-feature22"] = (function() {
       d3.select("svg").append("text")
                     .attr("class", "prompt")
                     .attr("x", w/2)
-                    .attr("y", 9*h/10)
+                    .attr("y", 4.5*h/5)
                     .attr("font-family","Helvetica")
                     .attr("font-weight","light")
                     .attr("font-size",h/40)
@@ -159,6 +164,16 @@ jsPsych.plugins["evan-feature22"] = (function() {
                     .attr("fill", "white")
                     .style("opacity",1)
                     .text('')
+    }
+
+    if (trial.single_choice_option){
+      var choice_stage_text = "Press ".concat(choose_right_key, " to activate the door.")
+    }else{
+      var choice_stage_text = choose_left_key.concat(": left, ", choose_right_key, ": right");
+    }
+    // place the prompt up immediatley
+    if (trial.choice_prompt){
+      d3.select(".prompt").text(choice_stage_text)
     }
 
     // function to place the choice stims and wait for a response (called at the bottom of plugin.trial)
@@ -194,15 +209,8 @@ jsPsych.plugins["evan-feature22"] = (function() {
               .attr("y", choice_image_y).attr("width",choice_img_width).attr("height",choice_img_height)
               .attr("xlink:href", choice_images[position_to_choice_idx[0]]).style("opacity",1);
         }
-        if (trial.single_choice_option){
-          var choice_stage_text = "Press ".concat(choose_right_key, " to activate the door.")
-        }else{
-          var choice_stage_text = choose_left_key.concat(": left, ", choose_right_key, ": right");
-        }
 
-        if (trial.choice_prompt){
-          d3.select(".prompt").text(choice_stage_text)
-        }
+
 
         // define response handler function // function is automatically called
         // at response and info has response information
@@ -236,7 +244,7 @@ jsPsych.plugins["evan-feature22"] = (function() {
             unchosen_pos = [1];
             chosen_state = position_to_choice_idx[0];
           }
-          
+
           else if (choice_char == choose_right_key){
             chosen_class = '.cR';
             unchosen_classes = '.cL';
@@ -262,6 +270,10 @@ jsPsych.plugins["evan-feature22"] = (function() {
         // define function to handle responses that are too slow
         var handle_slow_response = function(){
             jsPsych.pluginAPI.clearAllTimeouts();
+            // kill keyboard listener
+            if (typeof keyboardListener !== 'undefined') {
+              jsPsych.pluginAPI.cancelKeyboardResponse(keyboardListener);
+            }
 
             // place text 'please respond faster' in red
             d3.select("svg").append("text")
@@ -274,11 +286,12 @@ jsPsych.plugins["evan-feature22"] = (function() {
                       .attr("text-anchor","middle")
                       .attr("fill", "red")
                       .style("opacity",1)
-                      .text('Please response faster')
+                      .text('Slow respnose penalty: -3')
 
 
           // record choice as 'slow'
           response.chosen_side = "SLOW";
+          response.chosen_pos = "SLOW";
 
           // wait some time and then end trial
           jsPsych.pluginAPI.setTimeout(function() {
@@ -320,9 +333,7 @@ jsPsych.plugins["evan-feature22"] = (function() {
         jsPsych.pluginAPI.setTimeout(function() { // wait for time after
           // wait for x time and then show the features...
           var pos_idx = response.chosen_pos; // 0,1 or 2
-          var f_rad = choice_img_width/4;
           var f_x = choice_image_x_arr[pos_idx] + 2*f_rad;
-          var f_y_arr = [h/2 - 3*f_rad, h/2];
 
           var chosen_state_features = c_f_outcomes[position_to_choice_idx[response.chosen_pos]];
 
@@ -366,7 +377,7 @@ jsPsych.plugins["evan-feature22"] = (function() {
                       d3.select("svg").append("text")
                                   .attr("class", "reward")
                                   .attr("x", f_x)
-                                  .attr("y", f_y_arr[1] + h/120 + 3.5*f_rad)
+                                  .attr("y", 3.65*h/5)//f_y_arr[1] + h/120 + 3.5*f_rad)
                                   .attr("font-family","Helvetica")
                                   .attr("font-weight","light")
                                   .attr("font-size",h/30)
@@ -401,7 +412,6 @@ jsPsych.plugins["evan-feature22"] = (function() {
       var display_unchosen_state_features = function(){
         //  500 msec time to move the two features..
 
-
         d3.selectAll(unchosen_classes).transition().attr('y',choice_y_stage2).duration(unchosen_circle_up_time)
         if (trial.update_prompt){
           d3.select(".prompt").text("what you would have gotten from other choices")
@@ -413,10 +423,7 @@ jsPsych.plugins["evan-feature22"] = (function() {
 
               pos_idx = unchosen_pos[u_idx]; // 0,1
               u_state_f_outcomes = c_f_outcomes[position_to_choice_idx[pos_idx]];
-
-              f_rad = choice_img_width/4;
               f_x = choice_image_x_arr[pos_idx] + 2*f_rad;
-              f_y_arr = [h/2 - 3*f_rad, h/2];
               // corresponds to chosen position...
               for (f_idx = 0; f_idx < 2; f_idx++){
 
@@ -479,7 +486,7 @@ jsPsych.plugins["evan-feature22"] = (function() {
           trial_data["chosen_state_f_".concat(f_idx+1, "_outcome")] = 1*c_f_outcomes[position_to_choice_idx[response.chosen_pos]][f_idx]
         }
         trial_data["chosen_state"] = position_to_choice_idx[response.chosen_pos] + 1; // 1,2
-        trial_data["chosen_pos"] = response.chosen_pos + 1; // 1,2, 
+        trial_data["chosen_pos"] = response.chosen_pos + 1; // 1,2,
       }
 
       // record

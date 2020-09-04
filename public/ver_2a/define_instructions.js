@@ -42,7 +42,7 @@ var instruction_pages_c = {
     show_clickable_nav: true
 }
 
-var n_practice_trials_1 = 5;
+var n_practice_trials_1 = 10;
 var practice_trials_1 = [];
 for (var i = 0; i < n_practice_trials_1; i++){
   var this_trial = {
@@ -50,8 +50,8 @@ for (var i = 0; i < n_practice_trials_1; i++){
     feature_rewards: [-3,3], // this won't be shown...
     c1_image: choice_images[0],
     c2_image: choice_images[1],
-    c1_feature_probs: [1,0],
-    c2_feature_probs: [.2,.7],  ///
+    c1_feature_probs: [.6,.4],
+    c2_feature_probs: [.3,.7],  ///
     choice_prompt: true,
     single_choice_option: true
   }
