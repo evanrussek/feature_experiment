@@ -123,7 +123,7 @@ function task(uid){
         stimulus: 'Welcome to the task. Before starting the main task, we would like you to answer a few questionnaires. \ Please try to answer as accurately as you can.'
     }
 
-    timeline.push(pre_Q_screen);
+    //timeline.push(pre_Q_screen);
 
     var scale_1 = [
       "Not at all",
@@ -157,11 +157,11 @@ function task(uid){
         {prompt: "Had a very dry mouth", name: 'aa10', labels: scale_1,required: true}
       ],
       randomize_question_order: false,
-      data:{trial_num: 'Q', Q_name: 'anx_aro_q'},
+      data:{trial_num: 'Q', Q_name: 'anx_aro'},
       on_finish: function(){saveTaskData()}
     };
 
-    timeline.push(anx_aro_q);
+    //timeline.push(anx_aro_q);
     var worry_q = {
       type: 'survey-likert',
       preamble:'Rate each of the following statements on a scale of 1 (not at all typical of me) to 5 (very typical of me). Please do not leave any items blank.',
@@ -188,9 +188,9 @@ function task(uid){
       on_finish: function(){saveTaskData()}
     };
 
-    timeline.push(worry_q);
+    // timeline.push(worry_q);
 
-    timeline = timeline.concat(intro_w_trials);
+    // timeline = timeline.concat(intro_w_trials);
 
     for (var i = 0; i < n_choice_trials; i++){
         var choice_trial = { // this calls the plugin that i made in - jspsych-evan-explugin.js

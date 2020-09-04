@@ -44,6 +44,11 @@ jsPsych.plugins["evan-feature22"] = (function() {
 
   plugin.trial = function(display_element, trial) {
 
+    // divide trial feature rewards by 3 // this is temporary
+    for (i = 0;  i < trial.feature_rewards.length; i++){
+        trial.feature_rewards[i] = trial.feature_rewards[i]/3;
+    }
+
     var choice_idxs = [0,1];
 
     // don't randomize position for now...
@@ -72,6 +77,11 @@ jsPsych.plugins["evan-feature22"] = (function() {
     // keys for left and right
     var choose_left_key = 'g';
     var choose_right_key = 'j';
+
+    // for displaying the total
+    var win_color = "green";
+    var loss_color = "red";
+    var none_color = "grey";
 
     // figure out the outcomes for each feature
     var c1_f_outcomes = [];
@@ -372,6 +382,19 @@ jsPsych.plugins["evan-feature22"] = (function() {
 
                 reward_received = c_rewards[position_to_choice_idx[response.chosen_pos]];
 
+                if (reward_received > 0){
+                  var this_text = "won 1";
+                  var this_color = win_color;
+                }else if(reward_received < 0){
+                  var this_text = "lost 1";
+                  var this_color = loss_color;
+                }else{
+                  var this_text = "0";
+                  var this_color = none_color;
+                }
+
+
+
                 jsPsych.pluginAPI.setTimeout(function() {
                     if (!trial.single_choice_option){
                       d3.select("svg").append("text")
@@ -382,9 +405,9 @@ jsPsych.plugins["evan-feature22"] = (function() {
                                   .attr("font-weight","light")
                                   .attr("font-size",h/30)
                                   .attr("text-anchor","middle")
-                                  .attr("fill", "white")
+                                  .attr("fill", this_color)
                                   .style("opacity",.75)
-                                  .text("Total: ".concat(reward_received))
+                                  .text(this_text)
 
                   if (trial.update_prompt){
                     if (reward_received < 0){
@@ -487,6 +510,10 @@ jsPsych.plugins["evan-feature22"] = (function() {
         }
         trial_data["chosen_state"] = position_to_choice_idx[response.chosen_pos] + 1; // 1,2
         trial_data["chosen_pos"] = response.chosen_pos + 1; // 1,2,
+      }else{
+        trial_data["chosen_state"] = "SLOW";
+        trial_data["chosen_pos"] = "SLOW";
+        reward_received = -3;
       }
 
       // record

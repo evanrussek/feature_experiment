@@ -47,7 +47,7 @@ var practice_trials_1 = [];
 for (var i = 0; i < n_practice_trials_1; i++){
   var this_trial = {
     type: 'evan-feature22',
-    feature_rewards: [-3,3], // this won't be shown...
+    feature_rewards: [3,-3], // this won't be shown...
     c1_image: choice_images[0],
     c2_image: choice_images[1],
     c1_feature_probs: [.6,.4],
@@ -60,7 +60,7 @@ for (var i = 0; i < n_practice_trials_1; i++){
 
 
 //// ...
-var practice_feature_rewards = [[-3, 0], [0, 3], [0,3], [-3, 0], [-3, 0], [0,3]];
+var practice_feature_rewards = [[3, 0], [0, -3], [0,-3], [3, 0], [3, 0], [0,-3]];
 var n_practice_trials_2 = 5;//practice_feature_rewards.length;
 var practice_trials_2 = [];
 for (var i = 0; i < n_practice_trials_2; i++){
