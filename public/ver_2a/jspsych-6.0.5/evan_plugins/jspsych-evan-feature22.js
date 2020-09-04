@@ -292,11 +292,11 @@ jsPsych.plugins["evan-feature22"] = (function() {
                       .attr("y", h/2 + w/12)
                       .attr("font-family","monospace")
                       .attr("font-weight","bold")
-                      .attr("font-size",w/24)
+                      .attr("font-size",w/30)
                       .attr("text-anchor","middle")
                       .attr("fill", "red")
                       .style("opacity",1)
-                      .text('Slow respnose penalty: -3')
+                      .text('Slow respnose penalty: lose 3')
 
 
           // record choice as 'slow'
