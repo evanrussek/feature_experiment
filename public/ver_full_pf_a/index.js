@@ -166,30 +166,59 @@ function task(uid){
       type: 'survey-likert',
       preamble:'Rate each of the following statements on a scale of 1 (not at all typical of me) to 5 (very typical of me). Please do not leave any items blank.',
       questions: [
-        {prompt: "If I do not have enough time to do everything, I do not worry about it", name: 'worry1', labels: scale_1,required: true},
-        {prompt: "My worries overwhelm me", name: 'worry2', labels: scale_1,required: true},
-        {prompt: "I do not tend to worry about things", name: 'worry3', labels: scale_1,required: true},
-        {prompt: "Many situations make me worry", name: 'worry4', labels: scale_1,required: true},
-        {prompt: "I know I should not worry about things, but I just cannot help it", name: 'worry5', labels: scale_1,required: true},
-        {prompt: "When I am under pressure I worry a lot", name: 'worry6', labels: scale_1,required: true},
-        {prompt: "I am always worrying about something", name: 'worry7', labels: scale_1,required: true},
-        {prompt: "I find it easy to dismiss worrisome thoughts", name: 'worry8', labels: scale_1,required: true},
-        {prompt: "As soon as I finish one task, I start to worry about everything else I have to do", name: 'worry9', labels: scale_1,required: true},
-        {prompt: "I never worry about anything", name: 'worry10', labels: scale_1,required: true},
-        {prompt: "When there is nothing more I can do about a concern, I do not worry about it any more", name: 'worry11', labels: scale_1,required: true},
-        {prompt: "I have been a worrier all my life", name: 'worry12', labels: scale_1,required: true},
-        {prompt: "I notice that I have been worrying about things", name: 'worry13', labels: scale_1,required: true},
-        {prompt: "Once I start worrying, I cannot stop", name: 'worry14', labels: scale_1,required: true},
-        {prompt: "I worry all the time", name: 'worry15', labels: scale_1,required: true},
-        {prompt: "I worry about projects until they are all done", name: 'worry16', labels: scale_1,required: true}
+        {prompt: "If I do not have enough time to do everything, I do not worry about it", name: 'worry1', labels: scale_2,required: true},
+        {prompt: "My worries overwhelm me", name: 'worry2', labels: scale_2,required: true},
+        {prompt: "I do not tend to worry about things", name: 'worry3', labels: scale_2,required: true},
+        {prompt: "Many situations make me worry", name: 'worry4', labels: scale_2,required: true},
+        {prompt: "I know I should not worry about things, but I just cannot help it", name: 'worry5', labels: scale_2,required: true},
+        {prompt: "When I am under pressure I worry a lot", name: 'worry6', labels: scale_2,required: true},
+        {prompt: "I am always worrying about something", name: 'worry7', labels: scale_2,required: true},
+        {prompt: "I find it easy to dismiss worrisome thoughts", name: 'worry8', labels: scale_2,required: true},
+        {prompt: "As soon as I finish one task, I start to worry about everything else I have to do", name: 'worry9', labels: scale_2,required: true},
+        {prompt: "I never worry about anything", name: 'worry10', labels: scale_2,required: true},
+        {prompt: "When there is nothing more I can do about a concern, I do not worry about it any more", name: 'worry11', labels: scale_2,required: true},
+        {prompt: "I have been a worrier all my life", name: 'worry12', labels: scale_2,required: true},
+        {prompt: "I notice that I have been worrying about things", name: 'worry13', labels: scale_2,required: true},
+        {prompt: "Once I start worrying, I cannot stop", name: 'worry14', labels: scale_2,required: true},
+        {prompt: "I worry all the time", name: 'worry15', labels: scale_2,required: true},
+        {prompt: "I worry about projects until they are all done", name: 'worry16', labels: scale_2,required: true}
       ],
       randomize_question_order: false,
       data:{trial_num: 'Q', Q_name: 'worry'},
       on_finish: function(){saveTaskData()}
     };
 
-     timeline.push(worry_q);
 
+     timeline.push(worry_q);
+	var ocd_q = {
+      type: 'survey-likert',
+      preamble:'The following statements refer to experiences that many people have in their everyday lives. Select the option that best describes HOW MUCH that experience has DISTRESSED or BOTHERED you during the PAST MONTH',
+      questions: [
+        {prompt: "I have saved up so many things that they get in the way.", name: 'ocd1', labels: scale_1,required: true},
+        {prompt: "I check things more often than necessary.", name: 'ocd2', labels: scale_1,required: true},
+        {prompt: "I get upset if objects are not arranged properly.", name: 'ocd3', labels: scale_1,required: true},
+        {prompt: "I feel compelled to count while I am doing things.", name: 'ocd4', labels: scale_1,required: true},
+        {prompt: "I find it difficult to touch an object when I know it has been touched by strangers or certain people.", name: 'ocd5', labels: scale_1,required: true},
+        {prompt: "I find it difficult to control my own thoughts.", name: 'ocd16', labels: scale_1,required: true},
+        {prompt: "I collect things I do not need.", name: 'ocd6', labels: scale_1,required: true},
+        {prompt: "I repeatedly check doors, windows, drawers, etc.", name: 'ocd7', labels: scale_1,required: true},
+        {prompt: "I get upset if others change the way I have arranged things.", name: 'ocd8', labels: scale_1,required: true},
+        {prompt: "I feel I have to repeat certain numbers.", name: 'ocd9', labels: scale_1,required: true},
+        {prompt: "I sometimes have to wash or clean myself simply because I feel contaminated.", name: 'ocd10', labels: scale_1,required: true},
+        {prompt: "I am upset by unpleasant thoughts that come into my mind against my will.", name: 'ocd11', labels: scale_1,required: true},
+        {prompt: "I avoid throwing things away because I am afraid I might need them later.", name: 'ocd12', labels: scale_1,required: true},
+        {prompt: "I repeatedly check gas and water taps and light switches after turning them off.", name: 'ocd13', labels: scale_1,required: true},
+        {prompt: "I need things to be arranged in a particular way.", name: 'ocd14', labels: scale_1,required: true},
+        {prompt: "I feel that there are good and bad numbers.", name: 'ocd15', labels: scale_1,required: true},
+        {prompt: "I wash my hands more often and longer than necessary.", name: 'ocd16', labels: scale_1,required: true},
+        {prompt: "I frequently get nasty thoughts and have difficulty in getting rid of them.", name: 'ocd16', labels: scale_1,required: true}
+      ],
+      randomize_question_order: false,
+      data:{trial_num: 'Q', Q_name: 'ocd'},
+      on_finish: function(){saveTaskData()}
+    };
+
+     timeline.push(ocd_q);
      timeline = timeline.concat(intro_w_trials);
 
     for (var i = 0; i < n_choice_trials; i++){
