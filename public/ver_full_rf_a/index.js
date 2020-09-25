@@ -60,7 +60,7 @@ function task(uid){
     }
 
     var db = firebase.firestore();
-    var run_name = 'run2a';  // great
+    var run_name = 'run3';  // great
 
     // function to save the task data... call this every x trials
     var saveTaskData = function(){
@@ -228,7 +228,8 @@ function task(uid){
       questions: [
         {prompt: "Did you notice anything differently about the first and second halves of the block ?"}
       ],
-      data:{trial_num: 'Q', Q_name: 'notice'}
+      data:{trial_num: 'Q', Q_name: 'notice'},
+      on_finish: function(){saveTaskData()}
     };
     timeline.push(notice_question);
 
@@ -248,7 +249,8 @@ function task(uid){
       questions: [
         {prompt: "If not, did you find yourself just focusing on one or two of the aliens?", options: ['yes', 'no', 'N/A']}
       ],
-      data:{trial_num: 'Q', Q_name: 'track2'}
+      data:{trial_num: 'Q', Q_name: 'track2'},
+      on_finish: function(){saveTaskData()}
     };
     timeline.push(track_question2);
 

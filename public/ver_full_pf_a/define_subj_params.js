@@ -15,3 +15,4 @@ if (safe_first){
 }
 
 jsPsych.data.addProperties({safe_first: safe_first});
+jsPsych.data.addProperties({version: "full_pf_a"});
