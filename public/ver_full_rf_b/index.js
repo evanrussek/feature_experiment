@@ -332,7 +332,7 @@ function task(uid){
       on_finish: function() {
       console.log('done')
       // download many files...?
-      jsPsych.data.get().localSave('csv','test_res.csv');
+      // jsPsych.data.get().localSave('csv','test_res.csv');
     //on_finish: saveData
     }
     });
