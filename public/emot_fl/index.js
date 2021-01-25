@@ -60,7 +60,7 @@ function task(uid){
     }
 
     var db = firebase.firestore();
-    var run_name = 'run3';  // great
+    var run_name = 'emot_fl';  // great
 
     // function to save the task data... call this every x trials
     var saveTaskData = function(){
@@ -123,7 +123,7 @@ function task(uid){
         stimulus: 'Welcome to the task. Before starting the main task, we would like you to answer a few questionnaires. \ Please try to answer as accurately as you can.'
     }
 
-    
+
 
     var scale_1 = [
       "Not at all",
@@ -141,7 +141,7 @@ function task(uid){
       "Very typical of me"
     ];
 
-    
+
     timeline = timeline.concat(intro_w_trials);
     first_order = Math.round(Math.random());
     if (first_order==1){
@@ -149,7 +149,7 @@ function task(uid){
     } else{
       second_order=1;
     }
-    
+
     for (var i = 0; i < n_choice_trials; i++){
         random_emot_image_index = Math.floor(Math.random() * 5);
         if (i<80){
@@ -163,7 +163,7 @@ function task(uid){
           feature_rewards: rewards[i],
           c1_image: choice_images[0],
           c2_image: choice_images[1],
-          
+
           emot_image: emotional_images[order_var][random_emot_image_index],
 
           c1_feature_probs: feature_probs[i]["s_0"],
@@ -228,7 +228,7 @@ function task(uid){
       on_finish: function() {
       console.log('done')
       // download many files...?
-      jsPsych.data.get().localSave('csv','test_res.csv');
+      // jsPsych.data.get().localSave('csv','test_res.csv');
     //on_finish: saveData
     }
     });
